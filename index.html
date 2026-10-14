@@ -9,7 +9,314 @@
 </head>
 <body>
 
-<div class="app">
+<div class="a<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1c69d4">
+<title>MRT1 · BMW iDrive 8</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="idrive">
+
+  <!-- Curved display glow -->
+  <div class="curve-glow"></div>
+  <div class="ambient-glow"></div>
+
+  <!-- ═══ TOP STATUS BAR ═══ -->
+  <header class="status-bar">
+    <div class="brand-corner">
+      <div class="bmw-badge">
+        <svg viewBox="0 0 40 40" width="36" height="36">
+          <circle cx="20" cy="20" r="19" fill="#0a0a0a" stroke="#2a2a2a" stroke-width="2"/>
+          <path d="M 20 2 A 18 18 0 0 1 38 20 L 20 20 Z" fill="#ffffff"/>
+          <path d="M 38 20 A 18 18 0 0 1 20 38 L 20 20 Z" fill="#1c69d4"/>
+          <path d="M 20 38 A 18 18 0 0 1 2 20 L 20 20 Z" fill="#ffffff"/>
+          <path d="M 2 20 A 18 18 0 0 1 20 2 L 20 20 Z" fill="#1c69d4"/>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="#000" stroke-width="0.5"/>
+          <circle cx="20" cy="20" r="4" fill="#0a0a0a"/>
+          <text x="20" y="17" text-anchor="middle" font-size="4" fill="#fff" font-weight="900" letter-spacing="0.5">BMW</text>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-line1">MRT1</div>
+        <div class="brand-line2">iDRIVE 8</div>
+      </div>
+    </div>
+
+    <div class="top-modes">
+      <div class="mode-pill active" data-mode="comfort">
+        <span class="pill-dot"></span>COMFORT
+      </div>
+      <div class="mode-pill" data-mode="sport">
+        <span class="pill-dot"></span>SPORT
+      </div>
+      <div class="mode-pill" data-mode="eco">
+        <span class="pill-dot"></span>ECO PRO
+      </div>
+      <div class="mode-pill" data-mode="adaptive">
+        <span class="pill-dot"></span>ADAPTIVE
+      </div>
+    </div>
+
+    <div class="top-right">
+      <div class="status-icon" title="WiFi">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 21l3-3.6c-1.5-1.2-4.5-1.2-6 0l3 3.6zM5.3 15.7c3.6-3.3 9.8-3.3 13.4 0l1.4-1.7c-4.5-4.1-11.7-4.1-16.2 0l1.4 1.7zM1.5 11.5c5.8-5.3 15.2-5.3 21 0l1.4-1.7C17.3 4 6.7 4 .1 9.8l1.4 1.7z"/>
+        </svg>
+      </div>
+      <div class="status-icon" title="GPS">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 8c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm8.9-1c-.5 4-3.5 7-7.9 7.5v1.5h-2v-1.5C6.6 20 3.6 17 3.1 13H1.6v-2h1.5C3.6 7 6.6 4 11 3.5V2h2v1.5c4.4.5 7.4 3.5 7.9 7.5h1.5v2h-1.5z"/>
+        </svg>
+      </div>
+      <div class="status-icon" title="Connected">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm1-13h-2v6l5.2 3.1 1-1.6-4.2-2.5z"/>
+        </svg>
+      </div>
+      <div class="clock-mini">
+        <div class="time" id="clock">--:--</div>
+        <div class="date" id="date">---</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MAIN DISPLAY ═══ -->
+  <main class="display">
+
+    <!-- ═══ DRIVER DISPLAY (LEFT) ═══ -->
+    <section class="driver-display">
+      <div class="driver-frame">
+
+        <!-- Speed gauge -->
+        <div class="speed-cluster">
+          <canvas id="gauge"></canvas>
+          <div class="speed-content">
+            <div class="speed-num" id="speed">0</div>
+            <div class="speed-unit">km/h</div>
+          </div>
+        </div>
+
+        <!-- RPM label -->
+        <div class="rpm-badge">
+          <span class="rpm-bar"></span>
+          <span id="rpm">0</span>
+          <span class="rpm-label">RPM</span>
+        </div>
+
+        <!-- Gear indicator -->
+        <div class="gear-display">
+          <div class="gear-letter">D</div>
+          <div class="gear-mode">COMFORT</div>
+        </div>
+
+        <!-- Ready indicator -->
+        <div class="ready-display">
+          <span class="ready-icon">⚡</span>
+          <span>READY</span>
+        </div>
+
+        <!-- Energy / range bar -->
+        <div class="energy-bar">
+          <div class="energy-left">
+            <span class="energy-icon">⛽</span>
+            <span class="energy-val">87%</span>
+          </div>
+          <div class="energy-track">
+            <div class="energy-fill" style="width:87%"></div>
+          </div>
+          <div class="energy-right">
+            <span class="energy-val">542 km</span>
+            <span class="energy-icon">🛣</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ CENTRAL CONTROL DISPLAY (RIGHT) ═══ -->
+    <section class="central-display">
+
+      <!-- NAVIGATION MAP (Main area) -->
+      <div class="nav-map">
+        <div class="map-grid"></div>
+        <div class="map-route">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M 10 90 Q 30 60, 50 50 T 90 20" 
+                  stroke="#1c69d4" stroke-width="1.2" fill="none" stroke-linecap="round"
+                  style="filter: drop-shadow(0 0 3px #1c69d4)"/>
+          </svg>
+        </div>
+        
+        <div class="map-header">
+          <div class="map-title">NAVIGATION</div>
+          <div class="map-eta">ETA 14:36 · 12 km</div>
+        </div>
+
+        <div class="map-marker">
+          <div class="marker-pin"></div>
+          <div class="marker-pulse"></div>
+        </div>
+
+        <div class="nav-instruction">
+          <div class="nav-arrow">⬆</div>
+          <div class="nav-text">
+            <div class="nav-action">Continue straight</div>
+            <div class="nav-distance">in 200 m</div>
+          </div>
+          <div class="nav-street">Valiasr St · Tehran</div>
+        </div>
+      </div>
+
+      <!-- BOTTOM WIDGETS -->
+      <div class="widgets">
+        
+        <div class="widget widget-car">
+          <div class="widget-header">
+            <span>VEHICLE</span>
+            <span class="widget-live">LIVE</span>
+          </div>
+          <div class="widget-body">
+            <div class="mini-car">
+              <svg viewBox="0 0 200 80" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="carBodyMini" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#333"/>
+                    <stop offset="60%" stop-color="#0a0a0a"/>
+                    <stop offset="100%" stop-color="#000"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="100" cy="68" rx="80" ry="4" fill="rgba(0,0,0,0.7)"/>
+                <path d="M 15 55 Q 12 40 22 32 L 45 28 Q 60 8 85 6 L 130 6 Q 155 8 170 25 L 185 32 Q 190 38 190 48 L 190 58 L 15 58 Z" 
+                      fill="url(#carBodyMini)"/>
+                <path d="M 48 30 Q 60 12 85 10 L 125 10 Q 145 12 158 28 L 48 30 Z" 
+                      fill="rgba(30,60,80,0.6)"/>
+                <circle cx="55" cy="58" r="14" fill="#050505" stroke="#1a1a1a" stroke-width="2"/>
+                <circle cx="55" cy="58" r="6" fill="#333"/>
+                <circle cx="150" cy="58" r="14" fill="#050505" stroke="#1a1a1a" stroke-width="2"/>
+                <circle cx="150" cy="58" r="6" fill="#333"/>
+                <ellipse cx="185" cy="48" rx="3" ry="5" fill="#ffdd88"/>
+              </svg>
+            </div>
+            <div class="car-label">
+              <div class="car-name">MRT1</div>
+              <div class="car-status">ALL SYSTEMS OK</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget widget-temp">
+          <div class="widget-header">
+            <span>CLIMATE</span>
+          </div>
+          <div class="widget-body-center">
+            <div class="temp-value">22<span>°C</span></div>
+            <div class="temp-label">AUTO</div>
+          </div>
+        </div>
+
+        <div class="widget widget-media">
+          <div class="widget-header">
+            <span>MEDIA</span>
+            <span class="widget-icon">♪</span>
+          </div>
+          <div class="widget-body">
+            <div class="media-art">♪</div>
+            <div class="media-info">
+              <div class="media-title">No playback</div>
+              <div class="media-artist">Press MEDIA</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget widget-phone">
+          <div class="widget-header">
+            <span>PHONE</span>
+          </div>
+          <div class="widget-body">
+            <div class="phone-icon">☎</div>
+            <div class="phone-info">
+              <div class="phone-status">Connected</div>
+              <div class="phone-device">iPhone · BT</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══ JARVIS ORB (Floating) ═══ -->
+  <a href="jarvis.html" class="jarvis-float">
+    <div class="jarvis-core">✦</div>
+    <div class="jarvis-halo"></div>
+  </a>
+
+  <!-- ═══ BOTTOM MENU BAR ═══ -->
+  <footer class="menu-bar">
+
+    <a href="index.html" class="menu-item active">
+      <svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      <span class="menu-label">HOME</span>
+    </a>
+
+    <a href="navigation.html" class="menu-item">
+      <svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+      </svg>
+      <span class="menu-label">NAV</span>
+    </a>
+
+    <a href="music.html" class="menu-item">
+      <svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+      </svg>
+      <span class="menu-label">MEDIA</span>
+    </a>
+
+    <a href="phone.html" class="menu-item">
+      <svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+      </svg>
+      <span class="menu-label">PHONE</span>
+    </a>
+
+    <a href="jarvis.html" class="menu-item">
+      <svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/>
+      </svg>
+      <span class="menu-label">AI</span>
+    </a>
+
+    <a href="settings.html" class="menu-item">
+      <svg class="menu-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87a.49.49 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+      </svg>
+      <span class="menu-label">SETTINGS</span>
+    </a>
+
+    <!-- Controller indicator -->
+    <div class="controller">
+      <div class="controller-ring">
+        <div class="controller-center">◎</div>
+      </div>
+      <span class="controller-label">iDRIVE</span>
+    </div>
+
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>pp">
 
   <!-- Background layers -->
   <div class="bg-layer bg-1"></div>
