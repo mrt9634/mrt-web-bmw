@@ -1,11 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════
-   MRT1 · iDrive 8 Premium Cockpit · Engine
+   MRT1 · BMW iDrive 8 Authentic Cockpit · Engine
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  // ═══ CLOCK ═══
+  // ═══════════════════════════════════════════════════════════
+  // CLOCK
+  // ═══════════════════════════════════════════════════════════
   function updateClock() {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
@@ -15,14 +17,17 @@
 
     if (clock) clock.textContent = `${hh}:${mm}`;
     if (date) {
-      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-      const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-      date.textContent = `${days[now.getDay()]} · ${String(now.getDate()).padStart(2,'0')} ${months[now.getMonth()]}`;
+      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+                      'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      date.textContent = `${days[now.getDay()]} · ${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}`;
     }
   }
 
-  // ═══ GAUGE ═══
-  const gauge = {
+  // ═══════════════════════════════════════════════════════════
+  // GAUGE (Canvas)
+  // ═══════════════════════════════════════════════════════════
+  const gaugeState = {
     rpm: 0,
     targetRpm: 0,
     maxRpm: 8000
@@ -47,45 +52,45 @@
     const h = rect.height;
     const cx = w / 2;
     const cy = h / 2;
-    const r = Math.min(w, h) / 2 - 35;
+    const r = Math.min(w, h) / 2 - 20;
 
-    const startA = Math.PI * 0.72;
-    const endA = Math.PI * 2.28;
+    const startA = Math.PI * 0.75;
+    const endA = Math.PI * 2.25;
     const span = endA - startA;
 
     ctx.clearRect(0, 0, w, h);
 
-    // Outer soft ring
+    // Outer subtle ring
     ctx.beginPath();
-    ctx.arc(cx, cy, r + 14, startA, endA);
+    ctx.arc(cx, cy, r + 12, startA, endA);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(255, 180, 60, 0.06)';
+    ctx.strokeStyle = 'rgba(28, 105, 212, 0.08)';
     ctx.stroke();
 
-    // Track
+    // Background track
     ctx.beginPath();
     ctx.arc(cx, cy, r, startA, endA);
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 6;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.stroke();
 
-    // RPM arc
-    const ratio = Math.min(gauge.rpm / gauge.maxRpm, 1);
+    // RPM progress arc
+    const ratio = Math.min(gaugeState.rpm / gaugeState.maxRpm, 1);
     if (ratio > 0.001) {
       const grad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-      grad.addColorStop(0, '#ff6b00');
-      grad.addColorStop(0.35, '#ffb84d');
-      grad.addColorStop(0.7, '#ffd98a');
-      grad.addColorStop(1, '#ffffff');
+      grad.addColorStop(0.0, '#1c69d4');
+      grad.addColorStop(0.5, '#4a9eff');
+      grad.addColorStop(0.85, '#a8d0ff');
+      grad.addColorStop(1.0, '#ffffff');
 
       ctx.beginPath();
       ctx.arc(cx, cy, r, startA, startA + span * ratio);
-      ctx.lineWidth = 10;
+      ctx.lineWidth = 6;
       ctx.lineCap = 'round';
       ctx.strokeStyle = grad;
-      ctx.shadowColor = '#ffb84d';
-      ctx.shadowBlur = 35;
+      ctx.shadowColor = '#4a9eff';
+      ctx.shadowBlur = 25;
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -93,40 +98,43 @@
     // Redline
     ctx.beginPath();
     ctx.arc(cx, cy, r, startA + span * 0.84, endA);
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 6;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = 'rgba(255, 60, 40, 0.55)';
+    ctx.strokeStyle = 'rgba(255, 60, 40, 0.45)';
     ctx.stroke();
 
     // Ticks
     for (let i = 0; i <= 40; i++) {
       const a = startA + span * (i / 40);
       const isMajor = i % 5 === 0;
-      const r1 = r - 24;
-      const r2 = isMajor ? r - 40 : r - 32;
+      const r1 = r - 16;
+      const r2 = isMajor ? r - 30 : r - 23;
       ctx.beginPath();
       ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
       ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
-      ctx.lineWidth = isMajor ? 2 : 0.7;
+      ctx.lineWidth = isMajor ? 1.8 : 0.6;
       ctx.strokeStyle = isMajor
-        ? 'rgba(255, 180, 60, 0.8)'
+        ? 'rgba(74, 158, 255, 0.75)'
         : 'rgba(255, 255, 255, 0.15)';
       ctx.stroke();
     }
   }
 
+  // Smooth animation loop
   function animateGauge() {
-    const diff = gauge.targetRpm - gauge.rpm;
+    const diff = gaugeState.targetRpm - gaugeState.rpm;
     if (Math.abs(diff) > 2) {
-      gauge.rpm += diff * 0.18;
+      gaugeState.rpm += diff * 0.18;
     } else {
-      gauge.rpm = gauge.targetRpm;
+      gaugeState.rpm = gaugeState.targetRpm;
     }
     drawGauge();
     requestAnimationFrame(animateGauge);
   }
 
-  // ═══ UPDATE SPEED ═══
+  // ═══════════════════════════════════════════════════════════
+  // UPDATE SPEED & RPM
+  // ═══════════════════════════════════════════════════════════
   function updateSpeed(speed, rpm) {
     const speedEl = document.getElementById('speed');
     const rpmEl = document.getElementById('rpm');
@@ -137,123 +145,95 @@
     if (rpmEl) {
       rpmEl.textContent = Math.round(rpm)
         .toLocaleString('en-US')
-        .replace(/,/g, ' ') + ' RPM';
+        .replace(/,/g, ' ');
     }
-    gauge.targetRpm = rpm;
+    gaugeState.targetRpm = rpm;
   }
 
-  // ═══ MODES ═══
+  // ═══════════════════════════════════════════════════════════
+  // MODE PILLS
+  // ═══════════════════════════════════════════════════════════
   function initModes() {
-    const modes = document.querySelectorAll('.mode');
-    modes.forEach(btn => {
-      btn.addEventListener('click', () => {
-        modes.forEach(m => m.classList.remove('active'));
-        btn.classList.add('active');
-        document.body.setAttribute('data-mode', btn.dataset.mode);
+    const pills = document.querySelectorAll('.mode-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        const mode = pill.dataset.mode;
+        document.body.setAttribute('data-mode', mode);
+
+        // Update gear mode label
+        const gearMode = document.querySelector('.gear-mode');
+        if (gearMode) {
+          gearMode.textContent = mode.toUpperCase();
+        }
+
+        // Update page accent color based on mode
+        applyModeTheme(mode);
       });
     });
   }
 
-  // ═══ CAR DRAG ═══
-  function initCarDrag() {
-    const scene = document.querySelector('.stage-scene');
-    const carSvg = document.querySelector('.car-svg');
-    if (!scene || !carSvg) return;
-
-    let dragging = false;
-    let lastX = 0;
-    let rotY = 0;
-    let velY = 0;
-
-    const start = (x) => {
-      dragging = true;
-      lastX = x;
-      velY = 0;
+  function applyModeTheme(mode) {
+    const root = document.documentElement;
+    const themes = {
+      comfort:  { accent: '#1c69d4', glow: '#4a9eff' },
+      sport:    { accent: '#d41818', glow: '#ff4a4a' },
+      eco:      { accent: '#1cd46c', glow: '#4aff9e' },
+      adaptive: { accent: '#8b3fd4', glow: '#b87aff' }
     };
+    const theme = themes[mode] || themes.comfort;
 
-    const move = (x) => {
-      if (!dragging) return;
-      const dx = x - lastX;
-      lastX = x;
-      velY = dx * 0.5;
-      rotY += velY;
-      applyRotation(rotY);
-    };
-
-    const end = () => {
-      dragging = false;
-      // momentum
-      const momentum = () => {
-        if (Math.abs(velY) < 0.1) {
-          rotY = 0;
-          applyRotation(0);
-          return;
-        }
-        velY *= 0.94;
-        rotY += velY;
-        applyRotation(rotY);
-        requestAnimationFrame(momentum);
-      };
-      momentum();
-    };
-
-    function applyRotation(deg) {
-      // Rotate SVG subtly — max ±15deg because it's a side-view
-      const clamped = Math.max(-15, Math.min(15, deg * 0.15));
-      carSvg.style.transform = `rotateY(${clamped}deg)`;
-    }
-
-    scene.addEventListener('mousedown', e => start(e.clientX));
-    scene.addEventListener('touchstart', e => start(e.touches[0].clientX), { passive: true });
-    window.addEventListener('mousemove', e => move(e.clientX));
-    window.addEventListener('touchmove', e => move(e.touches[0].clientX), { passive: true });
-    window.addEventListener('mouseup', end);
-    window.addEventListener('touchend', end);
+    root.style.setProperty('--bmw-blue', theme.accent);
+    root.style.setProperty('--bmw-blue-glow', theme.glow);
   }
 
-  // ═══ PARTICLES ═══
-  function initParticles() {
-    const container = document.getElementById('particles');
-    if (!container) return;
+  // ═══════════════════════════════════════════════════════════
+  // SIMULATION (Replace with real data later)
+  // ═══════════════════════════════════════════════════════════
+  let simTime = 0;
 
-    for (let i = 0; i < 20; i++) {
-      const p = document.createElement('div');
-      p.style.cssText = `
-        position: absolute;
-        width: ${2 + Math.random() * 3}px;
-        height: ${2 + Math.random() * 3}px;
-        border-radius: 50%;
-        background: rgba(255, 180, 60, ${0.1 + Math.random() * 0.3});
-        left: ${Math.random() * 100}%;
-        top: ${Math.random() * 100}%;
-        filter: blur(1px);
-        animation: particleFloat ${8 + Math.random() * 12}s linear infinite;
-        animation-delay: ${-Math.random() * 20}s;
-      `;
-      container.appendChild(p);
-    }
-  }
-
-  // ═══ SIMULATION ═══
-  let t = 0;
   function simulate() {
-    t += 0.012;
+    simTime += 0.012;
 
-    const speed = 85 + 45 * Math.sin(t * 0.6) + 25 * Math.sin(t * 2.1) + 12 * Math.sin(t * 4.3);
-    const rpm = 3300 + 1700 * Math.abs(Math.sin(t * 1.1)) + 400 * Math.sin(t * 3.2);
+    const speed = 85 +
+                  45 * Math.sin(simTime * 0.6) +
+                  25 * Math.sin(simTime * 2.1) +
+                  12 * Math.sin(simTime * 4.3);
+
+    const rpm = 3300 +
+                1700 * Math.abs(Math.sin(simTime * 1.1)) +
+                400 * Math.sin(simTime * 3.2);
 
     updateSpeed(Math.max(0, speed), Math.max(800, rpm));
     requestAnimationFrame(simulate);
   }
 
-  // ═══ INIT ═══
+  // ═══════════════════════════════════════════════════════════
+  // KEYBOARD SHORTCUTS (Bonus)
+  // ═══════════════════════════════════════════════════════════
+  function initKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      // Number keys 1-4 for modes
+      const modes = ['comfort', 'sport', 'eco', 'adaptive'];
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= 4) {
+        const pills = document.querySelectorAll('.mode-pill');
+        if (pills[num - 1]) pills[num - 1].click();
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════════════════
   function init() {
     updateClock();
     setInterval(updateClock, 1000);
 
     initModes();
-    initCarDrag();
-    initParticles();
+    initKeyboard();
 
     drawGauge();
     animateGauge();
