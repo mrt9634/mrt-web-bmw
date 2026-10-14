@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#ff6b00">
+<title>MRT1 · ULTIMATE COCKPIT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="cockpit">
+  
+  <!-- ═══ TOP BAR ═══ -->
+  <div class="topbar">
+    <div class="brand-block">
+      <div class="logo-emblem">M</div>
+      <div class="brand-text">
+        <div class="brand-name">MRT1</div>
+        <div class="brand-tag">ULTIMATE COCKPIT</div>
+      </div>
+    </div>
+    
+    <div class="spacer"></div>
+    
+    <div class="mode-bar">
+      <div class="mode-btn active" data-mode="comfort">COMFORT</div>
+      <div class="mode-btn" data-mode="sport">SPORT</div>
+      <div class="mode-btn" data-mode="eco">ECO PRO</div>
+    </div>
+    
+    <div class="status-group">
+      <div class="status-chip"><span class="led"></span>WIFI</div>
+      <div class="status-chip"><span class="led"></span>GPS</div>
+      <div class="status-chip"><span class="led"></span>CAN</div>
+    </div>
+    
+    <div class="clock-area">
+      <div class="clock-main">
+        <div class="clock-time" id="clock">--:--</div>
+        <div class="clock-date" id="date">---</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ═══ LEFT: SPEEDOMETER ═══ -->
+  <div class="cluster">
+    <canvas id="gauge"></canvas>
+    <div class="speed-block">
+      <div class="speed-digits" id="speed">0</div>
+      <div class="speed-unit">KM / H</div>
+      <div class="rpm-line">
+        <span class="dot"></span>
+        <span id="rpm">0 RPM</span>
+      </div>
+    </div>
+    <div class="gear-badge" id="gear">D</div>
+    <div class="ready-badge">
+      <span class="bolt">⚡</span>
+      <span>READY</span>
+    </div>
+  </div>
+  
+  <!-- ═══ RIGHT: CAR + TELEMETRY ═══ -->
+  <div class="right-panel">
+    
+    <!-- 3D CAR STAGE -->
+    <div class="car-stage">
+      <div class="stage-label">VEHICLE · LIVE</div>
+      
+      <div class="car-3d-wrap">
+        <div class="car-3d">
+          <div class="car-shadow"></div>
+          <div class="car-underglow"></div>
+          <div class="car-body">
+            <div class="car-silhouette"></div>
+            <div class="car-hood"></div>
+            <div class="car-windshield"></div>
+            <div class="car-roof"></div>
+            <div class="car-accent"></div>
+            <div class="car-hl-l"></div>
+            <div class="car-hl-r"></div>
+            <div class="car-taillight"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="car-name">
+        <div class="model">MRT1 · VEHICLE</div>
+        <div class="spec">NO DATA · WAITING</div>
+      </div>
+    </div>
+    
+    <!-- TELEMETRY CARDS -->
+    <div class="telemetry">
+      <div class="tel-card" style="--accent: #ff6b00">
+        <div class="tel-head"><span class="tel-icon">⛽</span>FUEL</div>
+        <div class="tel-value" id="fuel">--<span class="unit">%</span></div>
+        <div class="tel-bar"><div id="fuel-bar" style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #4cd7a0">
+        <div class="tel-head"><span class="tel-icon">🔋</span>BATTERY</div>
+        <div class="tel-value" id="battery">--<span class="unit">V</span></div>
+        <div class="tel-bar"><div id="battery-bar" style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #ff4444">
+        <div class="tel-head"><span class="tel-icon">🌡</span>COOLANT</div>
+        <div class="tel-value" id="coolant">--<span class="unit">°C</span></div>
+        <div class="tel-bar"><div id="coolant-bar" style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #00d4ff">
+        <div class="tel-head"><span class="tel-icon">🛢</span>OIL</div>
+        <div class="tel-value">--<span class="unit">°C</span></div>
+        <div class="tel-bar"><div style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #ffb84d">
+        <div class="tel-head"><span class="tel-icon">🛣</span>RANGE</div>
+        <div class="tel-value">--<span class="unit">km</span></div>
+        <div class="tel-bar"><div style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #b366ff">
+        <div class="tel-head"><span class="tel-icon">⚡</span>BOOST</div>
+        <div class="tel-value">--<span class="unit">bar</span></div>
+        <div class="tel-bar"><div style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #4cd7a0">
+        <div class="tel-head"><span class="tel-icon">🛞</span>TIRES</div>
+        <div class="tel-value">--<span class="unit">psi</span></div>
+        <div class="tel-bar"><div style="width:0%"></div></div>
+      </div>
+      <div class="tel-card" style="--accent: #ff6b00">
+        <div class="tel-head"><span class="tel-icon">📊</span>CONSUMP</div>
+        <div class="tel-value">--<span class="unit">L/100</span></div>
+        <div class="tel-bar"><div style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JARVIS ORB -->
+  <a href="jarvis.html" class="jarvis-orb" title="JARVIS">✦</a>
+  
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-btn active">
+      <div class="nav-icon">⌂</div>
+      <div class="nav-text">HOME</div>
+    </a>
+    <a href="music.html" class="nav-btn">
+      <div class="nav-icon">♪</div>
+      <div class="nav-text">MEDIA</div>
+    </a>
+    <a href="jarvis.html" class="nav-btn">
+      <div class="nav-icon">✦</div>
+      <div class="nav-text">JARVIS</div>
+    </a>
+    <a href="settings.html" class="nav-btn">
+      <div class="nav-icon">⚙</div>
+      <div class="nav-text">SETTINGS</div>
+    </a>
+  </div>
+  
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
