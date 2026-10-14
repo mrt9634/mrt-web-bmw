@@ -1,30 +1,30 @@
-// ═══════════════════════════════════════════════════════════
-// MRT1 — Ultimate Cockpit
-// Web Dashboard JavaScript
-// ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
+   MRT1 · BMW iDrive 8 Cockpit · JavaScript Engine
+   ═══════════════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  // ─── Clock ─────────────────────────────────────────────────
+  // ─── Clock ──────────────────────────────────────────────────
   function updateClock() {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
-    const clockEl = document.getElementById('clock');
-    const dateEl = document.getElementById('date');
-
-    if (clockEl) clockEl.textContent = `${hh}:${mm}`;
-    if (dateEl) {
-      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-                      'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-      dateEl.textContent = `${days[now.getDay()]} · ${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}`;
+    const clock = document.getElementById('clock');
+    const date = document.getElementById('date');
+    
+    if (clock) clock.textContent = `${hh}:${mm}`;
+    if (date) {
+      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+      const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      date.textContent = `${days[now.getDay()]} · ${String(now.getDate()).padStart(2,'0')} ${months[now.getMonth()]}`;
     }
   }
 
-  // ─── RPM Gauge Canvas ──────────────────────────────────────
-  function drawGauge(rpm) {
+  // ─── Gauge Drawing ──────────────────────────────────────────
+  const gaugeState = { rpm: 0, targetRpm: 0 };
+
+  function drawGauge() {
     const canvas = document.getElementById('gauge');
     if (!canvas) return;
 
@@ -35,14 +35,15 @@
     if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
     }
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const w = rect.width;
     const h = rect.height;
     const cx = w / 2;
     const cy = h / 2;
-    const r = Math.min(w, h) / 2 - 15;
+    const r = Math.min(w, h) / 2 - 25;
 
     const startA = Math.PI * 0.75;
     const endA = Math.PI * 2.25;
@@ -50,29 +51,37 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // Track
+    // Outer subtle ring
     ctx.beginPath();
-    ctx.arc(cx, cy, r, startA, endA);
-    ctx.lineWidth = 6;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.arc(cx, cy, r + 8, startA, endA);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 180, 60, 0.08)';
     ctx.stroke();
 
-    // Progress
-    const ratio = Math.min(rpm / 8000, 1);
+    // Background track
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startA, endA);
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.stroke();
+
+    // RPM progress
+    const ratio = Math.min(gaugeState.rpm / 8000, 1);
     if (ratio > 0.001) {
       const grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, '#ff6b00');
-      grad.addColorStop(0.5, '#ffb84d');
+      grad.addColorStop(0.4, '#ffb84d');
+      grad.addColorStop(0.7, '#ffd98a');
       grad.addColorStop(1, '#ffffff');
 
       ctx.beginPath();
       ctx.arc(cx, cy, r, startA, startA + span * ratio);
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 8;
       ctx.lineCap = 'round';
       ctx.strokeStyle = grad;
       ctx.shadowColor = '#ffb84d';
-      ctx.shadowBlur = 25;
+      ctx.shadowBlur = 30;
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
@@ -80,25 +89,36 @@
     // Redline
     ctx.beginPath();
     ctx.arc(cx, cy, r, startA + span * 0.85, endA);
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 8;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = 'rgba(255,60,40,0.4)';
+    ctx.strokeStyle = 'rgba(255, 60, 40, 0.5)';
     ctx.stroke();
 
     // Ticks
-    for (let i = 0; i <= 36; i++) {
-      const a = startA + span * (i / 36);
-      const r1 = r - 16;
-      const r2 = (i % 6 === 0) ? r - 28 : r - 22;
+    for (let i = 0; i <= 40; i++) {
+      const a = startA + span * (i / 40);
+      const isMajor = i % 5 === 0;
+      const r1 = r - 20;
+      const r2 = isMajor ? r - 34 : r - 27;
       ctx.beginPath();
       ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
       ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
-      ctx.lineWidth = (i % 6 === 0) ? 1.5 : 0.5;
-      ctx.strokeStyle = (i % 6 === 0)
-        ? 'rgba(255,180,60,0.7)'
-        : 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = isMajor ? 1.8 : 0.6;
+      ctx.strokeStyle = isMajor ? 'rgba(255, 180, 60, 0.75)' : 'rgba(255, 255, 255, 0.18)';
       ctx.stroke();
     }
+  }
+
+  // ─── Animate gauge smoothly ─────────────────────────────────
+  function animateGauge() {
+    const diff = gaugeState.targetRpm - gaugeState.rpm;
+    if (Math.abs(diff) > 1) {
+      gaugeState.rpm += diff * 0.15;
+    } else {
+      gaugeState.rpm = gaugeState.targetRpm;
+    }
+    drawGauge();
+    requestAnimationFrame(animateGauge);
   }
 
   // ─── Update Speed & RPM ────────────────────────────────────
@@ -108,136 +128,75 @@
 
     if (speedEl) speedEl.textContent = Math.round(speed);
     if (rpmEl) {
-      rpmEl.textContent = Math.round(rpm)
-        .toLocaleString('en-US')
-        .replace(/,/g, ' ') + ' RPM';
+      rpmEl.textContent = Math.round(rpm).toLocaleString('en-US').replace(/,/g, ' ') + ' RPM';
     }
-    drawGauge(rpm);
-  }
-
-  // ─── Update Telemetry Cards ────────────────────────────────
-  function updateTelemetry(data) {
-    // Fuel
-    const fuelEl = document.getElementById('fuel');
-    const fuelBar = document.getElementById('fuel-bar');
-    if (fuelEl && data.fuel !== undefined) {
-      fuelEl.innerHTML = Math.round(data.fuel) + '<span class="unit">%</span>';
-    }
-    if (fuelBar && data.fuel !== undefined) {
-      fuelBar.style.width = Math.min(data.fuel, 100) + '%';
-    }
-
-    // Battery
-    const batEl = document.getElementById('battery');
-    const batBar = document.getElementById('battery-bar');
-    if (batEl && data.battery !== undefined) {
-      batEl.innerHTML = data.battery.toFixed(1) + '<span class="unit">V</span>';
-    }
-    if (batBar && data.battery !== undefined) {
-      const pct = Math.min(Math.max((data.battery - 10) / 5, 0), 1) * 100;
-      batBar.style.width = pct + '%';
-    }
-
-    // Coolant
-    const coolEl = document.getElementById('coolant');
-    const coolBar = document.getElementById('coolant-bar');
-    if (coolEl && data.coolant !== undefined) {
-      coolEl.innerHTML = Math.round(data.coolant) + '<span class="unit">°C</span>';
-    }
-    if (coolBar && data.coolant !== undefined) {
-      coolBar.style.width = Math.min(data.coolant / 130, 1) * 100 + '%';
-    }
+    gaugeState.targetRpm = rpm;
   }
 
   // ─── Mode Switching ────────────────────────────────────────
-  function initModeSwitching() {
-    const buttons = document.querySelectorAll('.mode-btn');
-    buttons.forEach(btn => {
+  function initModes() {
+    const modes = document.querySelectorAll('.mode');
+    modes.forEach(btn => {
       btn.addEventListener('click', () => {
-        buttons.forEach(b => b.classList.remove('active'));
+        modes.forEach(m => m.classList.remove('active'));
         btn.classList.add('active');
-
-        const mode = btn.dataset.mode;
-        document.body.setAttribute('data-mode', mode);
+        document.body.setAttribute('data-mode', btn.dataset.mode);
       });
     });
   }
 
   // ─── Car Drag Rotation ─────────────────────────────────────
   function initCarDrag() {
-    const wrap = document.querySelector('.car-3d-wrap');
-    const car = document.querySelector('.car-3d');
-    if (!wrap || !car) return;
+    const scene = document.querySelector('.scene');
+    const car = document.querySelector('.car');
+    if (!scene || !car) return;
 
     let dragging = false;
     let lastX = 0;
-    let rotY = -30;
-    let autoRotate = true;
+    let rotY = -35;
 
-    wrap.addEventListener('mousedown', (e) => {
+    const startDrag = (x) => {
       dragging = true;
-      lastX = e.clientX;
-      autoRotate = false;
+      lastX = x;
       car.style.animation = 'none';
-    });
+    };
 
-    wrap.addEventListener('touchstart', (e) => {
-      dragging = true;
-      lastX = e.touches[0].clientX;
-      autoRotate = false;
-      car.style.animation = 'none';
-    });
-
-    window.addEventListener('mousemove', (e) => {
+    const moveDrag = (x) => {
       if (!dragging) return;
-      const dx = e.clientX - lastX;
-      lastX = e.clientX;
-      rotY += dx * 0.5;
-      car.style.transform = `rotateX(-12deg) rotateY(${rotY}deg)`;
-    });
+      const dx = x - lastX;
+      lastX = x;
+      rotY += dx * 0.6;
+      car.style.transform = `rotateX(-18deg) rotateY(${rotY}deg)`;
+    };
 
-    window.addEventListener('touchmove', (e) => {
-      if (!dragging) return;
-      const dx = e.touches[0].clientX - lastX;
-      lastX = e.touches[0].clientX;
-      rotY += dx * 0.5;
-      car.style.transform = `rotateX(-12deg) rotateY(${rotY}deg)`;
-    });
-
-    function stopDrag() {
+    const endDrag = () => {
       if (!dragging) return;
       dragging = false;
       setTimeout(() => {
         if (!dragging) {
-          autoRotate = true;
-          car.style.animation = 'carRotate 25s linear infinite';
+          car.style.animation = 'carSpin 30s linear infinite';
         }
-      }, 3000);
-    }
+      }, 2500);
+    };
 
-    window.addEventListener('mouseup', stopDrag);
-    window.addEventListener('touchend', stopDrag);
+    scene.addEventListener('mousedown', e => startDrag(e.clientX));
+    scene.addEventListener('touchstart', e => startDrag(e.touches[0].clientX), { passive: true });
+    window.addEventListener('mousemove', e => moveDrag(e.clientX));
+    window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX), { passive: true });
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
   }
 
-  // ─── Simulation (for testing without real data) ────────────
-  let simTime = 0;
+  // ─── Simulation ────────────────────────────────────────────
+  let t = 0;
   function simulate() {
-    simTime += 0.015;
+    t += 0.012;
 
-    const speed = 60 + 60 * Math.sin(simTime) + 20 * Math.sin(simTime * 2.7);
-    const rpm = 2500 + 2500 * Math.abs(Math.sin(simTime * 1.4));
+    // Smooth sine waves for realistic feel
+    const speed = 80 + 50 * Math.sin(t * 0.7) + 25 * Math.sin(t * 2.3) + 15 * Math.sin(t * 4.1);
+    const rpm = 3200 + 1800 * Math.abs(Math.sin(t * 1.1)) + 500 * Math.sin(t * 3.5);
 
-    updateSpeed(speed, rpm);
-
-    // Occasionally update telemetry
-    if (Math.floor(simTime * 30) % 10 === 0) {
-      updateTelemetry({
-        fuel: 87,
-        battery: 14.2,
-        coolant: 90
-      });
-    }
-
+    updateSpeed(Math.max(0, speed), Math.max(800, rpm));
     requestAnimationFrame(simulate);
   }
 
@@ -246,10 +205,11 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    initModeSwitching();
+    initModes();
     initCarDrag();
 
-    // Start simulation — replace later with real data source
+    drawGauge();
+    animateGauge();
     simulate();
   }
 
