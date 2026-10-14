@@ -1,18 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════
-   MRT1 · BMW iDrive 8 Cockpit · JavaScript Engine
+   MRT1 · iDrive 8 Premium Cockpit · Engine
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
-  // ─── Clock ──────────────────────────────────────────────────
+  // ═══ CLOCK ═══
   function updateClock() {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const clock = document.getElementById('clock');
     const date = document.getElementById('date');
-    
+
     if (clock) clock.textContent = `${hh}:${mm}`;
     if (date) {
       const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
@@ -21,8 +21,12 @@
     }
   }
 
-  // ─── Gauge Drawing ──────────────────────────────────────────
-  const gaugeState = { rpm: 0, targetRpm: 0 };
+  // ═══ GAUGE ═══
+  const gauge = {
+    rpm: 0,
+    targetRpm: 0,
+    maxRpm: 8000
+  };
 
   function drawGauge() {
     const canvas = document.getElementById('gauge');
@@ -43,97 +47,102 @@
     const h = rect.height;
     const cx = w / 2;
     const cy = h / 2;
-    const r = Math.min(w, h) / 2 - 25;
+    const r = Math.min(w, h) / 2 - 35;
 
-    const startA = Math.PI * 0.75;
-    const endA = Math.PI * 2.25;
+    const startA = Math.PI * 0.72;
+    const endA = Math.PI * 2.28;
     const span = endA - startA;
 
     ctx.clearRect(0, 0, w, h);
 
-    // Outer subtle ring
+    // Outer soft ring
     ctx.beginPath();
-    ctx.arc(cx, cy, r + 8, startA, endA);
+    ctx.arc(cx, cy, r + 14, startA, endA);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(255, 180, 60, 0.08)';
+    ctx.strokeStyle = 'rgba(255, 180, 60, 0.06)';
     ctx.stroke();
 
-    // Background track
+    // Track
     ctx.beginPath();
     ctx.arc(cx, cy, r, startA, endA);
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 10;
     ctx.lineCap = 'round';
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.stroke();
 
-    // RPM progress
-    const ratio = Math.min(gaugeState.rpm / 8000, 1);
+    // RPM arc
+    const ratio = Math.min(gauge.rpm / gauge.maxRpm, 1);
     if (ratio > 0.001) {
-      const grad = ctx.createLinearGradient(0, 0, w, h);
+      const grad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
       grad.addColorStop(0, '#ff6b00');
-      grad.addColorStop(0.4, '#ffb84d');
+      grad.addColorStop(0.35, '#ffb84d');
       grad.addColorStop(0.7, '#ffd98a');
       grad.addColorStop(1, '#ffffff');
 
       ctx.beginPath();
       ctx.arc(cx, cy, r, startA, startA + span * ratio);
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 10;
       ctx.lineCap = 'round';
       ctx.strokeStyle = grad;
       ctx.shadowColor = '#ffb84d';
-      ctx.shadowBlur = 30;
+      ctx.shadowBlur = 35;
       ctx.stroke();
       ctx.shadowBlur = 0;
     }
 
     // Redline
     ctx.beginPath();
-    ctx.arc(cx, cy, r, startA + span * 0.85, endA);
-    ctx.lineWidth = 8;
+    ctx.arc(cx, cy, r, startA + span * 0.84, endA);
+    ctx.lineWidth = 10;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = 'rgba(255, 60, 40, 0.5)';
+    ctx.strokeStyle = 'rgba(255, 60, 40, 0.55)';
     ctx.stroke();
 
     // Ticks
     for (let i = 0; i <= 40; i++) {
       const a = startA + span * (i / 40);
       const isMajor = i % 5 === 0;
-      const r1 = r - 20;
-      const r2 = isMajor ? r - 34 : r - 27;
+      const r1 = r - 24;
+      const r2 = isMajor ? r - 40 : r - 32;
       ctx.beginPath();
       ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
       ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
-      ctx.lineWidth = isMajor ? 1.8 : 0.6;
-      ctx.strokeStyle = isMajor ? 'rgba(255, 180, 60, 0.75)' : 'rgba(255, 255, 255, 0.18)';
+      ctx.lineWidth = isMajor ? 2 : 0.7;
+      ctx.strokeStyle = isMajor
+        ? 'rgba(255, 180, 60, 0.8)'
+        : 'rgba(255, 255, 255, 0.15)';
       ctx.stroke();
     }
   }
 
-  // ─── Animate gauge smoothly ─────────────────────────────────
   function animateGauge() {
-    const diff = gaugeState.targetRpm - gaugeState.rpm;
-    if (Math.abs(diff) > 1) {
-      gaugeState.rpm += diff * 0.15;
+    const diff = gauge.targetRpm - gauge.rpm;
+    if (Math.abs(diff) > 2) {
+      gauge.rpm += diff * 0.18;
     } else {
-      gaugeState.rpm = gaugeState.targetRpm;
+      gauge.rpm = gauge.targetRpm;
     }
     drawGauge();
     requestAnimationFrame(animateGauge);
   }
 
-  // ─── Update Speed & RPM ────────────────────────────────────
+  // ═══ UPDATE SPEED ═══
   function updateSpeed(speed, rpm) {
     const speedEl = document.getElementById('speed');
     const rpmEl = document.getElementById('rpm');
 
-    if (speedEl) speedEl.textContent = Math.round(speed);
-    if (rpmEl) {
-      rpmEl.textContent = Math.round(rpm).toLocaleString('en-US').replace(/,/g, ' ') + ' RPM';
+    if (speedEl) {
+      speedEl.textContent = Math.round(speed);
     }
-    gaugeState.targetRpm = rpm;
+    if (rpmEl) {
+      rpmEl.textContent = Math.round(rpm)
+        .toLocaleString('en-US')
+        .replace(/,/g, ' ') + ' RPM';
+    }
+    gauge.targetRpm = rpm;
   }
 
-  // ─── Mode Switching ────────────────────────────────────────
+  // ═══ MODES ═══
   function initModes() {
     const modes = document.querySelectorAll('.mode');
     modes.forEach(btn => {
@@ -145,68 +154,106 @@
     });
   }
 
-  // ─── Car Drag Rotation ─────────────────────────────────────
+  // ═══ CAR DRAG ═══
   function initCarDrag() {
-    const scene = document.querySelector('.scene');
-    const car = document.querySelector('.car');
-    if (!scene || !car) return;
+    const scene = document.querySelector('.stage-scene');
+    const carSvg = document.querySelector('.car-svg');
+    if (!scene || !carSvg) return;
 
     let dragging = false;
     let lastX = 0;
-    let rotY = -35;
+    let rotY = 0;
+    let velY = 0;
 
-    const startDrag = (x) => {
+    const start = (x) => {
       dragging = true;
       lastX = x;
-      car.style.animation = 'none';
+      velY = 0;
     };
 
-    const moveDrag = (x) => {
+    const move = (x) => {
       if (!dragging) return;
       const dx = x - lastX;
       lastX = x;
-      rotY += dx * 0.6;
-      car.style.transform = `rotateX(-18deg) rotateY(${rotY}deg)`;
+      velY = dx * 0.5;
+      rotY += velY;
+      applyRotation(rotY);
     };
 
-    const endDrag = () => {
-      if (!dragging) return;
+    const end = () => {
       dragging = false;
-      setTimeout(() => {
-        if (!dragging) {
-          car.style.animation = 'carSpin 30s linear infinite';
+      // momentum
+      const momentum = () => {
+        if (Math.abs(velY) < 0.1) {
+          rotY = 0;
+          applyRotation(0);
+          return;
         }
-      }, 2500);
+        velY *= 0.94;
+        rotY += velY;
+        applyRotation(rotY);
+        requestAnimationFrame(momentum);
+      };
+      momentum();
     };
 
-    scene.addEventListener('mousedown', e => startDrag(e.clientX));
-    scene.addEventListener('touchstart', e => startDrag(e.touches[0].clientX), { passive: true });
-    window.addEventListener('mousemove', e => moveDrag(e.clientX));
-    window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX), { passive: true });
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('touchend', endDrag);
+    function applyRotation(deg) {
+      // Rotate SVG subtly — max ±15deg because it's a side-view
+      const clamped = Math.max(-15, Math.min(15, deg * 0.15));
+      carSvg.style.transform = `rotateY(${clamped}deg)`;
+    }
+
+    scene.addEventListener('mousedown', e => start(e.clientX));
+    scene.addEventListener('touchstart', e => start(e.touches[0].clientX), { passive: true });
+    window.addEventListener('mousemove', e => move(e.clientX));
+    window.addEventListener('touchmove', e => move(e.touches[0].clientX), { passive: true });
+    window.addEventListener('mouseup', end);
+    window.addEventListener('touchend', end);
   }
 
-  // ─── Simulation ────────────────────────────────────────────
+  // ═══ PARTICLES ═══
+  function initParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.style.cssText = `
+        position: absolute;
+        width: ${2 + Math.random() * 3}px;
+        height: ${2 + Math.random() * 3}px;
+        border-radius: 50%;
+        background: rgba(255, 180, 60, ${0.1 + Math.random() * 0.3});
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        filter: blur(1px);
+        animation: particleFloat ${8 + Math.random() * 12}s linear infinite;
+        animation-delay: ${-Math.random() * 20}s;
+      `;
+      container.appendChild(p);
+    }
+  }
+
+  // ═══ SIMULATION ═══
   let t = 0;
   function simulate() {
     t += 0.012;
 
-    // Smooth sine waves for realistic feel
-    const speed = 80 + 50 * Math.sin(t * 0.7) + 25 * Math.sin(t * 2.3) + 15 * Math.sin(t * 4.1);
-    const rpm = 3200 + 1800 * Math.abs(Math.sin(t * 1.1)) + 500 * Math.sin(t * 3.5);
+    const speed = 85 + 45 * Math.sin(t * 0.6) + 25 * Math.sin(t * 2.1) + 12 * Math.sin(t * 4.3);
+    const rpm = 3300 + 1700 * Math.abs(Math.sin(t * 1.1)) + 400 * Math.sin(t * 3.2);
 
     updateSpeed(Math.max(0, speed), Math.max(800, rpm));
     requestAnimationFrame(simulate);
   }
 
-  // ─── Init ──────────────────────────────────────────────────
+  // ═══ INIT ═══
   function init() {
     updateClock();
     setInterval(updateClock, 1000);
 
     initModes();
     initCarDrag();
+    initParticles();
 
     drawGauge();
     animateGauge();
