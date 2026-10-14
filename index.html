@@ -4,195 +4,460 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#ff6b00">
-<title>MRT1 · BMW iDrive</title>
+<title>MRT1 · iDrive 8</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="cockpit">
+<div class="app">
 
-  <!-- AMBIENT LIGHTS -->
-  <div class="ambient ambient-left"></div>
-  <div class="ambient ambient-right"></div>
-  
-  <!-- ═══ TOP BAR ═══ -->
-  <header class="topbar">
+  <!-- Background layers -->
+  <div class="bg-layer bg-1"></div>
+  <div class="bg-layer bg-2"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-particles" id="particles"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header">
     <div class="brand">
-      <div class="bmw-roundel">
-        <div class="roundel-inner"></div>
+      <div class="roundel">
+        <div class="roundel-quad"></div>
         <span>BMW</span>
       </div>
-      <div class="brand-text">
-        <div class="brand-name">iDRIVE 8</div>
-        <div class="brand-tag">ULTIMATE COCKPIT</div>
+      <div class="brand-meta">
+        <div class="brand-title">MRT1</div>
+        <div class="brand-sub">iDRIVE · ULTIMATE COCKPIT</div>
       </div>
     </div>
-    
-    <div class="drive-modes">
+
+    <div class="modes">
       <button class="mode active" data-mode="comfort">
-        <span class="mode-dot"></span>COMFORT
+        <span class="dot"></span>COMFORT
       </button>
       <button class="mode" data-mode="sport">
-        <span class="mode-dot"></span>SPORT
+        <span class="dot"></span>SPORT
       </button>
       <button class="mode" data-mode="eco">
-        <span class="mode-dot"></span>ECO PRO
+        <span class="dot"></span>ECO PRO
       </button>
     </div>
-    
-    <div class="topbar-right">
-      <div class="status-icons">
-        <div class="status"><span class="dot"></span>4G</div>
-        <div class="status"><span class="dot"></span>GPS</div>
-        <div class="status"><span class="dot"></span>CAN</div>
+
+    <div class="header-right">
+      <div class="chips">
+        <div class="chip"><span class="led"></span>4G</div>
+        <div class="chip"><span class="led"></span>GPS</div>
+        <div class="chip"><span class="led"></span>CAN</div>
       </div>
-      
       <div class="clock">
-        <div class="clock-time" id="clock">--:--</div>
-        <div class="clock-date" id="date">---</div>
+        <div class="time" id="clock">--:--</div>
+        <div class="date" id="date">---</div>
       </div>
-      
-      <div class="weather">🌤 22°</div>
     </div>
   </header>
-  
-  <!-- ═══ SPEED CLUSTER ═══ -->
-  <section class="cluster">
-    <div class="gauge-wrap">
+
+  <!-- ═══ GAUGE (LEFT) ═══ -->
+  <section class="gauge-section">
+    <div class="gauge-container">
       <canvas id="gauge"></canvas>
-      <div class="speed-display">
-        <div class="speed-value" id="speed">0</div>
-        <div class="speed-label">KM/H</div>
-        <div class="rpm-display">
-          <span class="pulse-dot"></span>
+      
+      <div class="gauge-content">
+        <div class="speed-value">
+          <span id="speed">0</span>
+        </div>
+        <div class="speed-unit">KM / H</div>
+        
+        <div class="rpm-row">
+          <span class="pulse"></span>
           <span id="rpm">0 RPM</span>
         </div>
       </div>
+      
+      <!-- Corner brackets -->
+      <div class="bracket bracket-tl"></div>
+      <div class="bracket bracket-tr"></div>
+      <div class="bracket bracket-bl"></div>
+      <div class="bracket bracket-br"></div>
     </div>
     
-    <div class="gear-indicator">
-      <span class="gear" id="gear">D</span>
-    </div>
-    
-    <div class="ready-indicator">
-      <span class="bolt">⚡</span>
-      <span>READY</span>
+    <div class="gauge-bottom">
+      <div class="gear-box">
+        <span class="gear-letter" id="gear">D</span>
+      </div>
+      
+      <div class="fuel-mini">
+        <div class="fuel-row">
+          <span class="fuel-icon">⛽</span>
+          <span class="fuel-label">FUEL</span>
+          <span class="fuel-val">87%</span>
+        </div>
+        <div class="fuel-bar"><div style="width:87%"></div></div>
+      </div>
+      
+      <div class="ready-chip">
+        <span>⚡</span>READY
+      </div>
     </div>
   </section>
-  
-  <!-- ═══ RIGHT PANEL ═══ -->
-  <section class="right-panel">
+
+  <!-- ═══ RIGHT SIDE ═══ -->
+  <section class="right-section">
     
-    <!-- 3D CAR STAGE -->
-    <div class="stage">
+    <!-- CAR STAGE -->
+    <div class="car-stage">
       <div class="stage-header">
         <span class="stage-title">LIVE VEHICLE</span>
         <span class="stage-hint">DRAG TO ROTATE</span>
       </div>
       
-      <div class="scene">
-        <div class="car">
-          <div class="car-glow"></div>
+      <div class="stage-scene">
+        <div class="car-wrap">
+          <!-- REAL SVG CAR — side profile -->
+          <svg class="car-svg" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <!-- Body gradient -->
+              <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3a3a3a"/>
+                <stop offset="35%" stop-color="#151515"/>
+                <stop offset="70%" stop-color="#0a0a0a"/>
+                <stop offset="100%" stop-color="#000000"/>
+              </linearGradient>
+              
+              <!-- Top highlight -->
+              <linearGradient id="topHighlight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </linearGradient>
+              
+              <!-- Window -->
+              <linearGradient id="windowGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0a1a24"/>
+                <stop offset="50%" stop-color="#1a3a4a"/>
+                <stop offset="100%" stop-color="#050a10"/>
+              </linearGradient>
+              
+              <!-- Window reflection -->
+              <linearGradient id="windowReflect" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="rgba(180,220,255,0.5)"/>
+                <stop offset="50%" stop-color="rgba(180,220,255,0.05)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </linearGradient>
+              
+              <!-- Wheel hub -->
+              <radialGradient id="hubGrad">
+                <stop offset="0%" stop-color="#c8c8c8"/>
+                <stop offset="40%" stop-color="#606060"/>
+                <stop offset="100%" stop-color="#1a1a1a"/>
+              </radialGradient>
+              
+              <!-- Tire -->
+              <radialGradient id="tireGrad">
+                <stop offset="60%" stop-color="#0a0a0a"/>
+                <stop offset="90%" stop-color="#000000"/>
+                <stop offset="100%" stop-color="#1a1a1a"/>
+              </radialGradient>
+              
+              <!-- Headlight -->
+              <radialGradient id="headlightGlow">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="30%" stop-color="#ffe8b0"/>
+                <stop offset="60%" stop-color="#ffb84d"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+              
+              <!-- Taillight -->
+              <radialGradient id="taillightGlow">
+                <stop offset="0%" stop-color="#ffd0d0"/>
+                <stop offset="40%" stop-color="#ff2020"/>
+                <stop offset="100%" stop-color="#8b0000"/>
+              </radialGradient>
+              
+              <!-- Gold accent -->
+              <linearGradient id="goldAccent" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="transparent"/>
+                <stop offset="50%" stop-color="#ffb84d"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Ground shadow -->
+            <ellipse cx="450" cy="270" rx="380" ry="18" fill="rgba(0,0,0,0.9)" opacity="0.7"/>
+            <ellipse cx="450" cy="272" rx="320" ry="12" fill="rgba(255,107,0,0.3)" opacity="0.5"/>
+
+            <!-- ─── CAR BODY ─── -->
+            <!-- Main silhouette -->
+            <path d="M 80 220 
+                     Q 75 195 95 175 
+                     L 180 160 
+                     Q 220 105 290 95 
+                     L 500 95 
+                     Q 580 100 640 130 
+                     L 810 175 
+                     Q 830 185 832 205 
+                     L 832 235 
+                     L 80 235 Z" 
+                  fill="url(#bodyGrad)"/>
+            
+            <!-- Top highlight -->
+            <path d="M 80 220 
+                     Q 75 195 95 175 
+                     L 180 160 
+                     Q 220 105 290 95 
+                     L 500 95 
+                     Q 580 100 640 130 
+                     L 810 175 
+                     Q 830 185 832 205 
+                     L 832 210 
+                     Q 830 190 810 180 
+                     L 640 135 
+                     Q 580 105 500 100 
+                     L 290 100 
+                     Q 220 110 180 165 
+                     L 95 180 
+                     Q 78 198 82 218 Z" 
+                  fill="url(#topHighlight)"/>
+
+            <!-- Door line -->
+            <path d="M 320 105 L 320 230" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" fill="none"/>
+            <path d="M 580 110 L 580 230" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" fill="none"/>
+            
+            <!-- Door handles -->
+            <rect x="360" y="150" width="30" height="6" rx="3" fill="#0a0a0a" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+            <rect x="620" y="152" width="30" height="6" rx="3" fill="#0a0a0a" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+            <!-- ─── WINDOWS ─── -->
+            <!-- Front window -->
+            <path d="M 210 158 
+                     Q 230 115 280 108 
+                     L 360 108 
+                     L 360 158 Z" 
+                  fill="url(#windowGrad)"/>
+            <path d="M 210 158 
+                     Q 230 115 280 108 
+                     L 360 108 
+                     L 360 158 Z" 
+                  fill="url(#windowReflect)" opacity="0.6"/>
+            
+            <!-- Rear window -->
+            <path d="M 380 108 
+                     L 530 108 
+                     Q 580 112 610 135 
+                     L 610 158 
+                     L 380 158 Z" 
+                  fill="url(#windowGrad)"/>
+            <path d="M 380 108 
+                     L 530 108 
+                     Q 580 112 610 135 
+                     L 610 158 
+                     L 380 158 Z" 
+                  fill="url(#windowReflect)" opacity="0.5"/>
+            
+            <!-- B-pillar -->
+            <rect x="358" y="105" width="6" height="55" fill="#0a0a0a"/>
+
+            <!-- ─── GOLD ACCENT LINE ─── -->
+            <path d="M 100 205 L 830 205" stroke="url(#goldAccent)" stroke-width="2" fill="none" opacity="0.8"/>
+            
+            <!-- Side skirt -->
+            <path d="M 90 232 L 825 232 L 820 240 L 95 240 Z" fill="#0a0a0a"/>
+
+            <!-- ─── WHEELS ─── -->
+            <!-- Rear wheel (behind) -->
+            <g>
+              <circle cx="220" cy="235" r="42" fill="url(#tireGrad)"/>
+              <circle cx="220" cy="235" r="42" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+              <circle cx="220" cy="235" r="26" fill="url(#hubGrad)"/>
+              <circle cx="220" cy="235" r="24" fill="none" stroke="#0a0a0a" stroke-width="1"/>
+              <!-- Spokes -->
+              <g stroke="#1a1a1a" stroke-width="2" fill="none">
+                <line x1="220" y1="211" x2="220" y2="259"/>
+                <line x1="196" y1="235" x2="244" y2="235"/>
+                <line x1="203" y1="218" x2="237" y2="252"/>
+                <line x1="237" y1="218" x2="203" y2="252"/>
+              </g>
+              <circle cx="220" cy="235" r="6" fill="#3a3a3a"/>
+            </g>
+
+            <!-- Front wheel -->
+            <g>
+              <circle cx="680" cy="235" r="42" fill="url(#tireGrad)"/>
+              <circle cx="680" cy="235" r="42" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+              <circle cx="680" cy="235" r="26" fill="url(#hubGrad)"/>
+              <circle cx="680" cy="235" r="24" fill="none" stroke="#0a0a0a" stroke-width="1"/>
+              <g stroke="#1a1a1a" stroke-width="2" fill="none">
+                <line x1="680" y1="211" x2="680" y2="259"/>
+                <line x1="656" y1="235" x2="704" y2="235"/>
+                <line x1="663" y1="218" x2="697" y2="252"/>
+                <line x1="697" y1="218" x2="663" y2="252"/>
+              </g>
+              <circle cx="680" cy="235" r="6" fill="#3a3a3a"/>
+            </g>
+
+            <!-- ─── HEADLIGHT ─── -->
+            <ellipse cx="815" cy="200" rx="16" ry="10" fill="url(#headlightGlow)"/>
+            <path d="M 800 195 L 830 195 L 830 210 L 800 210 Z" fill="#ffe8b0" opacity="0.9"/>
+            
+            <!-- DRL strip -->
+            <path d="M 802 193 L 828 193" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.95"/>
+            
+            <!-- ─── TAILLIGHT ─── -->
+            <path d="M 75 195 L 100 195 L 100 215 L 75 215 Z" fill="url(#taillightGlow)"/>
+            <path d="M 78 200 L 98 200" stroke="#ffffff" stroke-width="2" opacity="0.8"/>
+            
+            <!-- ─── BMW Roundel on hood ─── -->
+            <circle cx="750" cy="175" r="10" fill="#0a0a0a" stroke="#3a3a3a" stroke-width="1"/>
+            <circle cx="750" cy="175" r="8" fill="#0066b1"/>
+            <path d="M 750 167 L 750 175 L 758 175" fill="none" stroke="#ffffff" stroke-width="4"/>
+            
+            <!-- ─── Front grille accents ─── -->
+            <path d="M 790 210 L 830 210" stroke="#0a0a0a" stroke-width="3"/>
+            <path d="M 790 218 L 830 218" stroke="#0a0a0a" stroke-width="3"/>
+          </svg>
           
-          <div class="body">
-            <div class="roof"></div>
-            <div class="windshield"></div>
-            <div class="rear-window"></div>
-            <div class="main-body"></div>
-            <div class="hood"></div>
-            <div class="front-bumper"></div>
-            <div class="rear-bumper"></div>
-          </div>
-          
-          <div class="headlight headlight-left"></div>
-          <div class="headlight headlight-right"></div>
-          <div class="taillight taillight-left"></div>
-          <div class="taillight taillight-right"></div>
-          
-          <div class="wheel wheel-fl"></div>
-          <div class="wheel wheel-fr"></div>
-          <div class="wheel wheel-rl"></div>
-          <div class="wheel wheel-rr"></div>
-          
-          <div class="ground-shadow"></div>
-          <div class="underglow"></div>
+          <!-- Reflection below car -->
+          <div class="car-reflection"></div>
+        </div>
+        
+        <!-- Speed lines -->
+        <div class="speed-lines">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
         </div>
       </div>
       
-      <div class="car-info">
-        <div class="car-model">MRT1 · SEDAN</div>
+      <div class="stage-footer">
+        <div class="car-name">MRT1 · SEDAN</div>
         <div class="car-spec">AWAITING DATA</div>
       </div>
     </div>
-    
-    <!-- TELEMETRY -->
+
+    <!-- TELEMETRY GRID -->
     <div class="telemetry">
       
-      <div class="card card-fuel">
-        <div class="card-icon">⛽</div>
-        <div class="card-label">FUEL</div>
-        <div class="card-value">87<span class="unit">%</span></div>
-        <div class="card-bar"><div style="width:87%"></div></div>
+      <div class="card" style="--accent:#ff6b00">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">⛽</span>
+          <span class="card-title">FUEL</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">87</span>
+          <span class="card-unit">%</span>
+        </div>
+        <div class="card-progress"><div style="width:87%"></div></div>
       </div>
-      
-      <div class="card card-battery">
-        <div class="card-icon">🔋</div>
-        <div class="card-label">BATTERY</div>
-        <div class="card-value">14.2<span class="unit">V</span></div>
-        <div class="card-bar"><div style="width:78%"></div></div>
+
+      <div class="card" style="--accent:#4cd7a0">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">🔋</span>
+          <span class="card-title">BATTERY</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">14.2</span>
+          <span class="card-unit">V</span>
+        </div>
+        <div class="card-progress"><div style="width:78%"></div></div>
       </div>
-      
-      <div class="card card-coolant">
-        <div class="card-icon">🌡</div>
-        <div class="card-label">COOLANT</div>
-        <div class="card-value">90<span class="unit">°C</span></div>
-        <div class="card-bar"><div style="width:70%"></div></div>
+
+      <div class="card" style="--accent:#ff4444">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">🌡</span>
+          <span class="card-title">COOLANT</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">90</span>
+          <span class="card-unit">°C</span>
+        </div>
+        <div class="card-progress"><div style="width:70%"></div></div>
       </div>
-      
-      <div class="card card-oil">
-        <div class="card-icon">🛢</div>
-        <div class="card-label">OIL</div>
-        <div class="card-value">105<span class="unit">°C</span></div>
-        <div class="card-bar"><div style="width:72%"></div></div>
+
+      <div class="card" style="--accent:#00d4ff">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">🛢</span>
+          <span class="card-title">OIL</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">105</span>
+          <span class="card-unit">°C</span>
+        </div>
+        <div class="card-progress"><div style="width:72%"></div></div>
       </div>
-      
-      <div class="card card-range">
-        <div class="card-icon">🛣</div>
-        <div class="card-label">RANGE</div>
-        <div class="card-value">542<span class="unit">km</span></div>
-        <div class="card-bar"><div style="width:76%"></div></div>
+
+      <div class="card" style="--accent:#ffb84d">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">🛣</span>
+          <span class="card-title">RANGE</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">542</span>
+          <span class="card-unit">km</span>
+        </div>
+        <div class="card-progress"><div style="width:76%"></div></div>
       </div>
-      
-      <div class="card card-boost">
-        <div class="card-icon">⚡</div>
-        <div class="card-label">BOOST</div>
-        <div class="card-value">2.4<span class="unit">bar</span></div>
-        <div class="card-bar"><div style="width:64%"></div></div>
+
+      <div class="card" style="--accent:#b366ff">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">⚡</span>
+          <span class="card-title">BOOST</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">2.4</span>
+          <span class="card-unit">bar</span>
+        </div>
+        <div class="card-progress"><div style="width:64%"></div></div>
       </div>
-      
-      <div class="card card-tires">
-        <div class="card-icon">🛞</div>
-        <div class="card-label">TIRES</div>
-        <div class="card-value">36<span class="unit">psi</span></div>
-        <div class="card-bar"><div style="width:90%"></div></div>
+
+      <div class="card" style="--accent:#80ff80">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">🛞</span>
+          <span class="card-title">TIRES</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">36</span>
+          <span class="card-unit">psi</span>
+        </div>
+        <div class="card-progress"><div style="width:90%"></div></div>
       </div>
-      
-      <div class="card card-consumption">
-        <div class="card-icon">📊</div>
-        <div class="card-label">CONSUMP</div>
-        <div class="card-value">8.4<span class="unit">L/100</span></div>
-        <div class="card-bar"><div style="width:52%"></div></div>
+
+      <div class="card" style="--accent:#ffaa66">
+        <div class="card-bracket card-bracket-tl"></div>
+        <div class="card-bracket card-bracket-br"></div>
+        <div class="card-head">
+          <span class="card-icon">📊</span>
+          <span class="card-title">CONSUMP</span>
+        </div>
+        <div class="card-body">
+          <span class="card-value">8.4</span>
+          <span class="card-unit">L/100</span>
+        </div>
+        <div class="card-progress"><div style="width:52%"></div></div>
       </div>
-      
+
     </div>
   </section>
-  
+
   <!-- JARVIS ORB -->
-  <a href="jarvis.html" class="jarvis-orb">
-    <div class="orb-inner">✦</div>
+  <a href="jarvis.html" class="orb">
+    <div class="orb-core">✦</div>
     <div class="orb-ring"></div>
+    <div class="orb-ring ring-2"></div>
   </a>
-  
+
   <!-- ═══ BOTTOM NAV ═══ -->
   <nav class="bottom-nav">
     <a href="index.html" class="nav active">
@@ -211,17 +476,17 @@
       <span class="nav-icon">⚙</span>
       <span class="nav-label">SETTINGS</span>
     </a>
-    
-    <div class="mini-player">
-      <div class="mini-album">♪</div>
-      <div class="mini-info">
-        <div class="mini-title">No track playing</div>
-        <div class="mini-artist">—</div>
+
+    <div class="player">
+      <div class="player-art">♪</div>
+      <div class="player-info">
+        <div class="player-title">No track playing</div>
+        <div class="player-artist">Tap to browse</div>
       </div>
-      <button class="mini-btn">▶</button>
+      <button class="player-btn">▶</button>
     </div>
   </nav>
-  
+
 </div>
 
 <script src="app.js"></script>
